@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ControlarServiceDesdeNotificacion</string>
+    <string name="empezar">Empezar</string>
+    <string name="parar">Parar</string>
+    <string name="pausar">Pausar</string>
+    <string name="reanudar">Reanudar</string>
+</resources>
