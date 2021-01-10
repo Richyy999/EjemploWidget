@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
@@ -79,36 +78,44 @@ public class Notificacion {
      * @param context contexto de la aplicación
      */
     private Notificacion(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.context = context.getApplicationContext();
+        this.context = context.getApplicationContext();
 
-            Intent deleteIntent = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_PARAR);
-            PendingIntent pendingIntentDelete = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
-                    deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Crea el intent para abrir MainActivity. Se activa cuando el usuario pulse la notificación
+        Intent cargarActivityIntent = new Intent(context, MainActivity.class);
+        PendingIntent pendingCargarActivityIntent = PendingIntent.getActivity(context, ServicioAccionNotificacion.REQUEST_CODE,
+                cargarActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Intent intentEmpezar = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_REANUDAR);
-            PendingIntent pendingIntentEmpezar = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
-                    intentEmpezar, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Intent para detener el servicio cuando se elimine la notificación
+        Intent deleteIntent = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_PARAR);
+        PendingIntent pendingIntentDelete = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
+                deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Intent intentParar = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_PAUSAR);
-            PendingIntent pendingIntentParar = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
-                    intentParar, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Intent para reanudar la cuenta. Se ejecuta cuendo el usuario pulsa el botón de Reanudar
+        Intent intentReanudar = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_REANUDAR);
+        PendingIntent pendingIntentReanudar = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
+                intentReanudar, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            this.layoutNotificacion = new RemoteViews(context.getPackageName(), R.layout.notificacion);
-            this.layoutNotificacion.setOnClickPendingIntent(R.id.btnEmpezarNotificacion, pendingIntentEmpezar);
-            this.layoutNotificacion.setOnClickPendingIntent(R.id.btnPararNotificacion, pendingIntentParar);
+        // Intent para pausar la cuenta del servicio. Se ejecuta cuendo el usuario pulsa sobre el botón de Pausar
+        Intent intentPsausar = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_PAUSAR);
+        PendingIntent pendingIntentPausar = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
+                intentPsausar, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        this.layoutNotificacion = new RemoteViews(context.getPackageName(), R.layout.notificacion);
+        this.layoutNotificacion.setOnClickPendingIntent(R.id.btnEmpezarNotificacion, pendingIntentReanudar);
+        this.layoutNotificacion.setOnClickPendingIntent(R.id.btnPararNotificacion, pendingIntentPausar);
 
 
-            this.notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setContent(this.layoutNotificacion)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setDeleteIntent(pendingIntentDelete)
-                    .setSmallIcon(R.drawable.clock)
-                    .build();
+        this.notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContent(this.layoutNotificacion)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setDeleteIntent(pendingIntentDelete)
+                .setContentIntent(pendingCargarActivityIntent)
+                .setAutoCancel(false)
+                .setSmallIcon(R.drawable.clock)
+                .build();
 
-            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-            notificationManagerCompat.notify(FOREGROUND_ID, this.notification);
-        }
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        notificationManagerCompat.notify(FOREGROUND_ID, this.notification);
     }
 
     /**
