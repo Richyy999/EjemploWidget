@@ -1,4 +1,4 @@
-package es.rbp.controlarservicedesdenotificacion.servicios;
+package es.rbp.ejemplo_widget.servicios;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

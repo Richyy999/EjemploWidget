@@ -1,4 +1,4 @@
-package es.rbp.controlarservicedesdenotificacion.servicios;
+package es.rbp.ejemplo_widget.servicios;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -16,8 +16,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import es.rbp.controlarservicedesdenotificacion.MainActivity;
-import es.rbp.controlarservicedesdenotificacion.Notificacion;
+import es.rbp.ejemplo_widget.MainActivity;
+import es.rbp.ejemplo_widget.Notificacion;
 
 /**
  * Cuenta los segundos que psasn desde que se inció el servicio y los envía a {@link MainActivity} y a {@link Notificacion}

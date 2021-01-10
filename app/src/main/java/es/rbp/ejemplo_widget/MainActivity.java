@@ -1,4 +1,4 @@
-package es.rbp.controlarservicedesdenotificacion;
+package es.rbp.ejemplo_widget;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import es.rbp.controlarservicedesdenotificacion.servicios.ServicioContador;
+import es.rbp.ejemplo_widget.servicios.ServicioContador;
 
 /**
  * Esta activity empieza, pausa o termina el {@link ServicioContador} y muestra el segundo actual del servicio

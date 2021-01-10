@@ -1,4 +1,4 @@
-package es.rbp.controlarservicedesdenotificacion;
+package es.rbp.ejemplo_widget;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package es.rbp.controlarservicedesdenotificacion;
+package es.rbp.ejemplo_widget;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -9,7 +9,7 @@ import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import es.rbp.controlarservicedesdenotificacion.servicios.ServicioAccionNotificacion;
+import es.rbp.ejemplo_widget.servicios.ServicioAccionNotificacion;
 
 /**
  * @author Ricardo Bordería Pi
@@ -73,7 +73,7 @@ public class Notificacion {
     /**
      * Constructor por privado de la clase.
      * <p>
-     * En él se crea la notificación que utilizarña el servicio {@link es.rbp.controlarservicedesdenotificacion.servicios.ServicioContador}
+     * En él se crea la notificación que utilizarña el servicio {@link es.rbp.ejemplo_widget.servicios.ServicioContador}
      *
      * @param context contexto de la aplicación
      */
