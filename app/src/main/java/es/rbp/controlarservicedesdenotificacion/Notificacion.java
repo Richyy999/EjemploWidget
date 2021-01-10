@@ -80,7 +80,9 @@ public class Notificacion {
     private Notificacion(Context context) {
         this.context = context.getApplicationContext();
 
-        // Crea el intent para abrir MainActivity. Se activa cuando el usuario pulse la notificación
+        // Crea el intent para abrir MainActivity. Se activa cuando el usuario pulse la notificación.
+        // Hay que añadir la propiedad android:launchMode="singleTop" en la etiqueta del activity que se quiere iniciar.
+        // Si no se añade, se crearán varias ventanas una encima de otra, pero sigue funcionando aunque no se añada esta propiedad
         Intent cargarActivityIntent = new Intent(context, MainActivity.class);
         PendingIntent pendingCargarActivityIntent = PendingIntent.getActivity(context, ServicioAccionNotificacion.REQUEST_CODE,
                 cargarActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
