@@ -1,4 +1,4 @@
-package es.rbp.ejemplo_widget.servicios;
+package es.rbp.ejemplo_widget.recivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,9 +7,9 @@ import android.content.Intent;
 /**
  * @author Ricardo Bordería Pi
  * <p>
- * {@link BroadcastReceiver} que recibe y envía las instrucciones procedentes de los botones de la notificación
+ * {@link BroadcastReceiver} que recibe y envía las instrucciones al servicio
  */
-public class ServicioAccionNotificacion extends BroadcastReceiver {
+public class EnviarAccionAServicio extends BroadcastReceiver {
 
     /**
      * Código de request del broadcast

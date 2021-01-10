@@ -20,7 +20,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="es.rbp.ejemplo_widget.servicios.ServicioAccionNotificacion" />
+
+        <receiver android:name="es.rbp.ejemplo_widget.recivers.EnviarAccionAServicio" />
+        <receiver android:name="es.rbp.ejemplo_widget.providers.WidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_provider" />
+        </receiver>
+
         <service android:name="es.rbp.ejemplo_widget.servicios.ServicioContador" />
     </application>
 

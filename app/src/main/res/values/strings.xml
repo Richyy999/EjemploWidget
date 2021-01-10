@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">ControlarServiceDesdeNotificacion</string>
+    <string name="app_name">EjemploWidget</string>
     <string name="empezar">Empezar</string>
     <string name="parar">Parar</string>
     <string name="pausar">Pausar</string>
     <string name="reanudar">Reanudar</string>
+    <string name="cero">0</string>
 </resources>

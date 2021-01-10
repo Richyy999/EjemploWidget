@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
@@ -128,7 +129,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Si {@link MainActivity#estadoServicio} es diferente a {@link ServicioContador#ESTADO_CORRIENDO} empieza un {@link ServicioContador}.
      */
     private void empezarServicio() {
-        if (estadoServicio != ServicioContador.ESTADO_CORRIENDO)
+        if (estadoServicio != ServicioContador.ESTADO_CORRIENDO) {
+            findViewById(R.id.btnEmpezar).setEnabled(false);
             startForegroundService(intent);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    findViewById(R.id.btnEmpezar).setEnabled(true);
+                }
+            }, 500);
+        }
     }
 }

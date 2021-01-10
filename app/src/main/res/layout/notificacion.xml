@@ -15,7 +15,9 @@
     <TextView
         android:id="@+id/lblContadorNotificacion"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/cero"
+        android:textColor="@android:color/black" />
 
     <Button
         android:id="@+id/btnPararNotificacion"

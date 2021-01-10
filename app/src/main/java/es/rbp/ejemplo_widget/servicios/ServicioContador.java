@@ -18,6 +18,8 @@ import androidx.annotation.Nullable;
 
 import es.rbp.ejemplo_widget.MainActivity;
 import es.rbp.ejemplo_widget.Notificacion;
+import es.rbp.ejemplo_widget.providers.WidgetProvider;
+import es.rbp.ejemplo_widget.recivers.EnviarAccionAServicio;
 
 /**
  * Cuenta los segundos que psasn desde que se inció el servicio y los envía a {@link MainActivity} y a {@link Notificacion}
@@ -45,6 +47,42 @@ public class ServicioContador extends Service {
     public static final int ESTADO_DETENIDO = 3;
 
     /**
+     * Acción indicando que empieze la cuenta
+     */
+    public static final String ACCION_EMPEZAR = "accion_empezar";
+
+    /**
+     * Acción indicando que pause la cuenta
+     */
+    public static final String ACCION_PAUSAR = "accion_pausar";
+    /**
+     * Acción indicando que reanude la marcha
+     */
+    public static final String ACCION_REANUDAR = "accion_reanudar";
+    /**
+     * Acción indicando que pare la cuenta y detenga el servicio
+     */
+    public static final String ACCION_PARAR = "accion_parar";
+    /**
+     * Acción indicando que se están enviando nuevos datos para actualizar las vistas
+     */
+    public static final String ACCION_ACTUALIZAR_DATOS = "accion_actualizar_datos";
+
+
+    /**
+     * Extra para indicar que se envía el segundo actual
+     *
+     * @see ServicioContador#segundoActual
+     */
+    public static final String EXTRA_ACTUALIZAR_SEGUNDOS = "extra_actualizar_segundos";
+    /**
+     * Extra para indicar que se envía el estado actual de la cuenta del servicio
+     *
+     * @see ServicioContador#estado
+     */
+    public static final String EXTRA_ACTUALIZAR_ESTADO = "extra_actualizar_estado";
+
+    /**
      * Handler para manejar los hilos
      */
     private Handler handler;
@@ -57,7 +95,7 @@ public class ServicioContador extends Service {
     private final IBinder binder = new LocalBinder();
 
     /**
-     * Instancia para recibir los mensajes de broadcast de {@link ServicioAccionNotificacion} por parte de {@link Notificacion}
+     * Instancia para recibir los mensajes de broadcast de {@link EnviarAccionAServicio} por parte de {@link Notificacion}
      */
     private BroadcastReceiver receiver;
 
@@ -77,6 +115,8 @@ public class ServicioContador extends Service {
      * Puede ser {@link ServicioContador#ESTADO_DETENIDO}, {@link ServicioContador#ESTADO_PAUSADO} o {@link ServicioContador#ESTADO_CORRIENDO}
      */
     private int estado = ESTADO_DETENIDO;
+
+    private boolean estaHabilitado;
 
     /**
      * Esta clase devuelve la instancia del servicio
@@ -116,24 +156,27 @@ public class ServicioContador extends Service {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String accion = intent.getStringExtra(ServicioAccionNotificacion.ACCION_EXTRA);
+                String accion = intent.getStringExtra(EnviarAccionAServicio.ACCION_EXTRA);
                 assert accion != null;
                 switch (accion) {
-                    case Notificacion.ACCION_REANUDAR:
+                    case ACCION_REANUDAR:
                         reanudarContador();
                         break;
-                    case Notificacion.ACCION_PAUSAR:
+                    case ACCION_PAUSAR:
                         pausarConteo();
                         break;
-                    case Notificacion.ACCION_PARAR:
+                    case ACCION_PARAR:
                         borrarServicio();
                         break;
                 }
             }
         };
 
-        registerReceiver(receiver, new IntentFilter(ServicioAccionNotificacion.FILTRO_INTENT));
-
+        try {
+            registerReceiver(receiver, new IntentFilter(EnviarAccionAServicio.FILTRO_INTENT));
+        } catch (Exception e) {
+            Log.e("SERVICIO", e.toString());
+        }
         final Notificacion notificacion = Notificacion.crearNotificacion(getApplicationContext());
         crearCanal(notificacion.getNotification());
 
@@ -141,17 +184,31 @@ public class ServicioContador extends Service {
             @Override
             public void run() {
                 segundoActual++;
-                llamada.actualizarContador(segundoActual);
+
+                if (llamada != null)
+                    llamada.actualizarContador(segundoActual);
+
                 notificacion.actualizarContador(segundoActual);
+                enviarEstadoBroadcast();
                 handler.postDelayed(hiloContador, 1000);
             }
         };
         handler.postDelayed(hiloContador, 1000);
 
         estado = ESTADO_CORRIENDO;
-        llamada.actualizarEstado(estado);
+
+        estaHabilitado = true;
 
         return START_NOT_STICKY;
+    }
+
+    private void enviarEstadoBroadcast() {
+        Context context = getApplicationContext();
+        Intent intent = new Intent(context, WidgetProvider.class);
+        intent.setAction(ACCION_ACTUALIZAR_DATOS);
+        intent.putExtra(EXTRA_ACTUALIZAR_ESTADO, estado);
+        intent.putExtra(EXTRA_ACTUALIZAR_SEGUNDOS, segundoActual);
+        context.sendBroadcast(intent);
     }
 
     /**
@@ -161,7 +218,7 @@ public class ServicioContador extends Service {
      * @see Notificacion
      */
     private void crearCanal(Notification notification) {
-        NotificationChannel channel = new NotificationChannel(Notificacion.CHANNEL_ID, "nombre", NotificationManager.IMPORTANCE_LOW);
+        NotificationChannel channel = new NotificationChannel(Notificacion.CHANNEL_ID, "nombre", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager manager = getSystemService(NotificationManager.class);
         if (manager != null) {
             manager.createNotificationChannel(channel);
@@ -175,8 +232,9 @@ public class ServicioContador extends Service {
      * @see ServicioContador#ESTADO_PAUSADO
      */
     private void reanudarContador() {
-        if (estado == ESTADO_PAUSADO) {
+        if (estado == ESTADO_PAUSADO && estaHabilitado) {
             Intent intent = new Intent(getApplicationContext(), ServicioContador.class);
+            estaHabilitado = false;
             startForegroundService(intent);
             Log.i("SERVICIO", "REANUDADO");
             Toast.makeText(getApplicationContext(), "Reanudado", Toast.LENGTH_SHORT).show();
@@ -190,13 +248,19 @@ public class ServicioContador extends Service {
      * @see ServicioContador#ESTADO_CORRIENDO
      */
     public void pausarConteo() {
-        if (estado == ESTADO_CORRIENDO) {
+        if (estado == ESTADO_CORRIENDO && estaHabilitado) {
+            estaHabilitado = false;
             handler.removeCallbacks(hiloContador);
             stopForeground(false);
             estado = ESTADO_PAUSADO;
-            llamada.actualizarEstado(estado);
+            enviarEstadoBroadcast();
+
+            if (llamada != null)
+                llamada.actualizarEstado(estado);
+
             Log.i("SERVICIO", "PAUSADO");
             Toast.makeText(getApplicationContext(), "Pausado", Toast.LENGTH_SHORT).show();
+            habilitarBotones();
         }
     }
 
@@ -206,30 +270,57 @@ public class ServicioContador extends Service {
      * Actualiza el estado de la cuenta del servidor a {@link ServicioContador#ESTADO_DETENIDO}
      */
     public void pararConteo() {
-        if (estado == ESTADO_CORRIENDO) {
+        if (estado == ESTADO_CORRIENDO && estaHabilitado) {
+            estaHabilitado = false;
             handler.removeCallbacks(hiloContador);
             segundoActual = SEGUNDO_POR_DEFECTO;
-            unregisterReceiver(receiver);
+            try {
+                unregisterReceiver(receiver);
+            } catch (IllegalArgumentException e) {
+                Log.e("SERVICIO", e.toString());
+            }
             stopForeground(true);
+            stopSelf();
             estado = ESTADO_DETENIDO;
-            llamada.actualizarEstado(estado);
+
             Log.i("SERVICIO", "DETENIDO");
             Toast.makeText(getApplicationContext(), "Detenido", Toast.LENGTH_SHORT).show();
-        } else if (estado == ESTADO_PAUSADO) {
+        } else if (estado == ESTADO_PAUSADO && estaHabilitado) {
+            estaHabilitado = false;
             estado = ESTADO_DETENIDO;
-            llamada.actualizarEstado(estado);
+
             Log.i("SERVICIO", "DETENIDO");
             Toast.makeText(getApplicationContext(), "Detenido", Toast.LENGTH_SHORT).show();
         }
+        if (llamada != null)
+            llamada.actualizarEstado(estado);
+
+        enviarEstadoBroadcast();
     }
 
     /**
      * Detiene el servicio por completo
      */
     private void borrarServicio() {
+        try {
+            unregisterReceiver(receiver);
+        } catch (IllegalArgumentException e) {
+            Log.e("SERVICIO", e.toString());
+        }
+        estado = ESTADO_DETENIDO;
+        segundoActual = SEGUNDO_POR_DEFECTO;
+        enviarEstadoBroadcast();
         stopSelf();
-        unregisterReceiver(receiver);
         Log.i("SERVICIO", "BORRADO POR NOTIFICACION");
+    }
+
+    private void habilitarBotones() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                estaHabilitado = true;
+            }
+        }, 500);
     }
 
     /**

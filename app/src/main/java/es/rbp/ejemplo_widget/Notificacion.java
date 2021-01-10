@@ -9,7 +9,8 @@ import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import es.rbp.ejemplo_widget.servicios.ServicioAccionNotificacion;
+import es.rbp.ejemplo_widget.recivers.EnviarAccionAServicio;
+import es.rbp.ejemplo_widget.servicios.ServicioContador;
 
 /**
  * @author Ricardo Bordería Pi
@@ -34,19 +35,6 @@ public class Notificacion {
      * Nombre del canal en el que se crea la notificación
      */
     public static final String CHANNEL_ID = "canalnotificacion";
-
-    /**
-     * Acción que manda la notificación al servicio indicando que pause la cuenta
-     */
-    public static final String ACCION_PAUSAR = "accion_pausar";
-    /**
-     * Acción que manda la notificación al servicio indicando que reanude la marcha
-     */
-    public static final String ACCION_REANUDAR = "accion_reanudar";
-    /**
-     * Acción que manda la notificación al servicio indicando que pare la cuenta y detenga el servicio
-     */
-    public static final String ACCION_PARAR = "accion_parar";
 
     /**
      * Instancia de la clase siguiendo el patrón singleton
@@ -84,22 +72,22 @@ public class Notificacion {
         // Hay que añadir la propiedad android:launchMode="singleTop" en la etiqueta del activity que se quiere iniciar.
         // Si no se añade, se crearán varias ventanas una encima de otra, pero sigue funcionando aunque no se añada esta propiedad
         Intent cargarActivityIntent = new Intent(context, MainActivity.class);
-        PendingIntent pendingCargarActivityIntent = PendingIntent.getActivity(context, ServicioAccionNotificacion.REQUEST_CODE,
+        PendingIntent pendingCargarActivityIntent = PendingIntent.getActivity(context, EnviarAccionAServicio.REQUEST_CODE,
                 cargarActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Intent para detener el servicio cuando se elimine la notificación
-        Intent deleteIntent = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_PARAR);
-        PendingIntent pendingIntentDelete = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
+        Intent deleteIntent = new Intent(context, EnviarAccionAServicio.class).setAction(ServicioContador.ACCION_PARAR);
+        PendingIntent pendingIntentDelete = PendingIntent.getBroadcast(context, EnviarAccionAServicio.REQUEST_CODE,
                 deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Intent para reanudar la cuenta. Se ejecuta cuendo el usuario pulsa el botón de Reanudar
-        Intent intentReanudar = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_REANUDAR);
-        PendingIntent pendingIntentReanudar = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
+        Intent intentReanudar = new Intent(context, EnviarAccionAServicio.class).setAction(ServicioContador.ACCION_REANUDAR);
+        PendingIntent pendingIntentReanudar = PendingIntent.getBroadcast(context, EnviarAccionAServicio.REQUEST_CODE,
                 intentReanudar, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Intent para pausar la cuenta del servicio. Se ejecuta cuendo el usuario pulsa sobre el botón de Pausar
-        Intent intentPsausar = new Intent(context, ServicioAccionNotificacion.class).setAction(ACCION_PAUSAR);
-        PendingIntent pendingIntentPausar = PendingIntent.getBroadcast(context, ServicioAccionNotificacion.REQUEST_CODE,
+        Intent intentPsausar = new Intent(context, EnviarAccionAServicio.class).setAction(ServicioContador.ACCION_PAUSAR);
+        PendingIntent pendingIntentPausar = PendingIntent.getBroadcast(context, EnviarAccionAServicio.REQUEST_CODE,
                 intentPsausar, PendingIntent.FLAG_UPDATE_CURRENT);
 
         this.layoutNotificacion = new RemoteViews(context.getPackageName(), R.layout.notificacion);
@@ -109,7 +97,8 @@ public class Notificacion {
 
         this.notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContent(this.layoutNotificacion)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentTitle(context.getString(R.string.app_name))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setDeleteIntent(pendingIntentDelete)
                 .setContentIntent(pendingCargarActivityIntent)
                 .setAutoCancel(false)
