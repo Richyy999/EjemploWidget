@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "ControlarServiceDesdeNotificacion"
+rootProject.name = "EjemploWidget"

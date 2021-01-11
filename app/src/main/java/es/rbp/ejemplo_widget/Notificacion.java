@@ -23,6 +23,9 @@ import es.rbp.ejemplo_widget.servicios.ServicioContador;
  * 2.- Puede pausar el contador
  * <p>
  * 3.- Muestra el segundo actual del contador
+ * <p>
+ * IMPORTANTE: Para que se muestre la notificación en la pantalla de bloqueo se debe permitir el acceso a la pantalla de bloqueo desde los ajustes
+ * del sistema
  */
 public class Notificacion {
 
