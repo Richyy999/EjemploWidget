@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private TextView lblSegundoActual;
 
+    /**
+     * Botón para empezar o reanudar el servicio
+     */
     private Button btnEmpezar;
 
     /**

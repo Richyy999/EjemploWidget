@@ -1,6 +1,5 @@
 package es.rbp.ejemplo_widget.servicios;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -103,6 +102,9 @@ public class ServicioContador extends Service {
      */
     private Llamada llamada;
 
+    /**
+     * Instacia de {@link Notificacion} para manejar la notificación del servicio
+     */
     private Notificacion notificacion;
 
     /**
@@ -117,8 +119,13 @@ public class ServicioContador extends Service {
      */
     private int estado = ESTADO_DETENIDO;
 
+    /**
+     * Indica si las acciones sobre la cuenta están habilitadas
+     */
     private boolean estaHabilitado;
-
+    /**
+     * Indica si el servicio está empezado o no
+     */
     private boolean servicioEmpezado;
 
     /**
@@ -183,7 +190,7 @@ public class ServicioContador extends Service {
         };
 
         notificacion = Notificacion.crearNotificacion(this);
-        crearCanal(notificacion.getNotification());
+        crearCanal();
     }
 
     @Override
@@ -222,10 +229,9 @@ public class ServicioContador extends Service {
     /**
      * Crea el canal para lanzar la notificación
      *
-     * @param notification notificación que mantendrá vivo el servicio
      * @see Notificacion
      */
-    private void crearCanal(Notification notification) {
+    private void crearCanal() {
         NotificationChannel channel = new NotificationChannel(Notificacion.CHANNEL_ID, "nombre", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager manager = getSystemService(NotificationManager.class);
         if (manager != null) {
