@@ -107,9 +107,6 @@ public class Notificacion {
                 .setAutoCancel(false)
                 .setSmallIcon(R.drawable.clock)
                 .build();
-
-        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-        notificationManagerCompat.notify(FOREGROUND_ID, this.notification);
     }
 
     /**

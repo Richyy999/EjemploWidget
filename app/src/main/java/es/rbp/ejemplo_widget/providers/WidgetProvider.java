@@ -67,6 +67,7 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         String accion = intent.getAction();
+        assert accion != null;
         if (accion.equals(ServicioContador.ACCION_EMPEZAR)) {
             if (estadoServicio == ServicioContador.ESTADO_DETENIDO) {
                 Intent servicioIntent = new Intent(context, ServicioContador.class);

@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private TextView lblSegundoActual;
 
+    private Button btnEmpezar;
+
     /**
      * Instancia del servicio para acceder a sus métodos
      */
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btnEmpezar = findViewById(R.id.btnEmpezar);
+        btnEmpezar = findViewById(R.id.btnEmpezar);
         Button btnParar = findViewById(R.id.btnParar);
         Button btnPausar = findViewById(R.id.btnPausar);
 
@@ -94,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (id == R.id.btnEmpezar)
             empezarServicio();
         else if (id == R.id.btnParar)
-            servicio.pararConteo();
+            servicio.stop();
         else if (id == R.id.btnPausar)
-            servicio.pausarConteo();
+            servicio.pause();
     }
 
     @Override
@@ -123,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (estado == ServicioContador.ESTADO_DETENIDO) {
             lblSegundoActual.setText(String.valueOf(ServicioContador.SEGUNDO_POR_DEFECTO));
         }
+        if (estado == ServicioContador.ESTADO_PAUSADO)
+            btnEmpezar.setText(R.string.reanudar);
     }
 
     /**
